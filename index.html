@@ -273,6 +273,8 @@ function viewMorceaux(){
       <span class="ico">${esc(m.titre[0])}</span>
       <span><b>${esc(m.titre)}</b><span class="lead">${esc(m.artiste)}</span></span>
       <span class="pill">${esc(m.niveau)}</span></a>`).join("")}</div>
+    <a class="song" href="#trouvailles"><span class="ico" style="background:var(--steel)">✎</span>
+      <span><b>Mes trouvailles</b><span class="lead">Les notes que tu trouves à l'oreille</span></span><span class="pill">À toi</span></a>
     <div class="warn"><b>Ajouter un morceau</b><span>Envoie à Claude le nom d'un morceau ou une capture de partition : il l'ajoute ici.</span></div>`;
 }
 
@@ -304,6 +306,7 @@ function viewMorceau(id){
     </div>
     <div class="panel" style="display:grid;gap:14px" id="sp"></div>
     <p class="lead">${esc(m.source||"")}</p>
+    ${m.id==="seven-ponds"?`<a class="song" href="#trouvailles"><span class="ico" style="background:var(--steel)">✎</span><span><b>Trouver la suite à l'oreille</b><span class="lead">Écris les notes que tu repères dans « Mes trouvailles »</span></span><span class="pill">›</span></a>`:""}
   </section>
   ${m.videos&&m.videos.length?`<section><h2>Vidéos</h2><div class="links">${m.videos.map(([t,u])=>`<a class="lnk" href="${u}" target="_blank" rel="noopener"><b>${esc(t)}</b><small>YouTube</small></a>`).join("")}</div></section>`:""}`;
   app.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>play(+b.dataset.f)));
@@ -436,14 +439,119 @@ function viewEcouter(){
   </section>`;
 }
 
+
+function viewTrouvailles(){
+  const def={list:[{id:1,nom:"Seven Ponds · passage 1",notes:[]}],cur:1,eb:true,dur:2,mode:"chercher"};
+  const data=Object.assign(def,store.get("trouvailles",{}));
+  const save=()=>store.set("trouvailles",data);
+  const cur=()=>data.list.find(p=>p.id===data.cur)||data.list[0];
+  const over=()=>data.eb?{B1:{vers:"Mi♭",accordeur:"D#4 / Eb4",f:311.13}}:{};
+  const DUR=[[1,"Courte"],[2,"Moyenne"],[3,"Longue"],[4,"Très longue"]];
+  app.innerHTML=`
+  <a class="back" href="#morceaux">‹ Mes morceaux</a>
+  <header style="display:grid;gap:6px"><h1>Mes trouvailles</h1>
+    <p class="lead">Tu écoutes, tu cherches la note sur les cordes, puis tu l'écris. L'appli te la rejoue en cases de couleur.</p></header>
+  <section>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><h3>Ralentis la vidéo</h3><p>Sur YouTube : ⚙️ → Vitesse → 0,5. Écoute 3 ou 4 notes, puis mets pause.</p></div>
+      <div class="step"><span class="num">2</span><h3>Mode « Chercher »</h3><p>Touche les cordes ci-dessous jusqu'à entendre la même note que Sina. Rien ne s'écrit.</p></div>
+      <div class="step"><span class="num">3</span><h3>Mode « Écrire »</h3><p>Choisis la durée, puis touche la bonne corde : la note s'ajoute à ton passage.</p></div>
+    </div>
+  </section>
+  <section>
+    <div class="panel" style="display:grid;gap:10px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="tSel" aria-label="Passage"></select>
+        <button class="btn" type="button" id="tNew">+ Nouveau passage</button>
+      </div>
+      <input id="tName" type="text" aria-label="Nom du passage" style="font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)">
+      <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="tEb" style="width:22px;height:22px;accent-color:var(--brass)"> Ma corde B1 est en Mi♭ (accordage Seven Ponds)</label>
+    </div>
+  </section>
+  <section>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn" type="button" id="mChercher">🔍 Chercher</button>
+      <button class="btn" type="button" id="mEcrire">✎ Écrire</button>
+    </div>
+    <div id="durRow" style="display:flex;gap:6px;flex-wrap:wrap;align-items:end">${DUR.map(([d,l])=>`<button type="button" class="chipbtn" data-d="${d}" style="border:2px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:6px 8px;font:inherit;font-weight:800;cursor:pointer;display:grid;gap:4px;justify-items:center"><span style="display:block;height:10px;width:${d*22}px;border-radius:4px;background:var(--mute)"></span><small>${l}</small></button>`).join("")}
+      <button type="button" class="btn" id="tRest" style="padding:6px 12px">· Silence</button></div>
+    <div class="panel tbl"><table><thead><tr><th>Rangée</th><th>Zone gauche<br>blanche<i class="sw G"></i></th><th>Zone centrale<br>blanche<i class="sw B"></i></th><th>Zone centrale<br>jaune<i class="sw J"></i></th></tr></thead><tbody id="tPal"></tbody></table></div>
+  </section>
+  <section>
+    <h2 id="tTitle"></h2>
+    <div class="ctrl">
+      <button class="btn" type="button" id="tPlay">▶ Écouter</button>
+      <button class="btn" type="button" id="tStop">■</button>
+      <select id="tTempo" aria-label="Vitesse"><option value="0.4">Très lent</option><option value="0.3" selected>Lent</option><option value="0.2">Normal</option></select>
+      <button class="btn" type="button" id="tUndo">⌫ Dernière note</button>
+    </div>
+    <div class="panel"><div class="bars" id="tChips" style="gap:3px"></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" type="button" id="tCopy">Copier mon passage</button>
+      <button class="btn" type="button" id="tDel">Supprimer ce passage</button>
+      <button class="btn" type="button" id="tDelOk" hidden style="background:#b3412f;border-color:#b3412f;color:#fff">Oui, supprimer</button>
+    </div>
+    <textarea id="tCode" readonly hidden style="width:100%;min-height:70px;font:inherit;border-radius:10px;padding:8px"></textarea>
+    <p class="lead">Tes trouvailles sont enregistrées sur ce téléphone. « Copier mon passage » te permet d'en garder une copie ailleurs, par exemple dans Notes.</p>
+  </section>`;
+  const $=id=>document.getElementById(id);
+  const pal=$("tPal");
+  for(let r=8;r>=0;r--){const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="rg">${r+1}</td>`+["G","B","J"].map(z=>`<td><button class="cellbtn ${z}" type="button" data-id="${z}${r+1}"></button></td>`).join("");pal.appendChild(tr)}
+  function renderPal(){pal.querySelectorAll(".cellbtn").forEach(b=>{const d=corde(b.dataset.id,over());b.classList.toggle("chg",!!d.chg);b.innerHTML=`${d.n}<small>${b.dataset.id}</small>`})}
+  function renderMode(){
+    [["mChercher","chercher"],["mEcrire","ecrire"]].forEach(([id,m])=>{const on=data.mode===m;$(id).style.background=on?"var(--ink)":"transparent";$(id).style.color=on?"var(--bg)":"var(--ink)"});
+    $("durRow").style.opacity=data.mode==="ecrire"?1:.4;
+    $("durRow").querySelectorAll("[data-d]").forEach(b=>b.style.borderColor=+b.dataset.d===data.dur?"var(--ink)":"var(--line)");
+  }
+  function renderSel(){
+    $("tSel").innerHTML=data.list.map(p=>`<option value="${p.id}" ${p.id===cur().id?"selected":""}>${esc(p.nom)}</option>`).join("");
+    $("tName").value=cur().nom;$("tTitle").textContent=cur().nom;$("tEb").checked=data.eb;
+  }
+  function renderChips(){
+    const n=cur().notes;
+    $("tChips").innerHTML=n.length?n.map(([c,d],i)=>{const x=corde(c,over());return `<div class="chip ${x.c}" id="tc${i}" style="width:${d*30+(d-1)*3}px">${c==="R"?"·":`${x.n}<small>${c}</small>`}</div>`}).join("")
+      :`<span class="lead">Ton passage est vide. Passe en mode « Écrire » et touche une corde.</span>`;
+  }
+  const all=()=>{renderSel();renderPal();renderMode();renderChips()};
+  pal.addEventListener("click",e=>{const b=e.target.closest(".cellbtn");if(!b)return;play(corde(b.dataset.id,over()).f);
+    if(data.mode==="ecrire"){cur().notes.push([b.dataset.id,data.dur]);save();renderChips()}});
+  $("tRest").addEventListener("click",()=>{if(data.mode!=="ecrire")return;cur().notes.push(["R",data.dur]);save();renderChips()});
+  $("durRow").addEventListener("click",e=>{const b=e.target.closest("[data-d]");if(!b)return;data.dur=+b.dataset.d;data.mode="ecrire";save();renderMode()});
+  $("mChercher").addEventListener("click",()=>{data.mode="chercher";save();renderMode()});
+  $("mEcrire").addEventListener("click",()=>{data.mode="ecrire";save();renderMode()});
+  $("tEb").addEventListener("change",e=>{data.eb=e.target.checked;save();renderPal();renderChips()});
+  $("tSel").addEventListener("change",e=>{data.cur=+e.target.value;save();all()});
+  $("tName").addEventListener("input",e=>{cur().nom=e.target.value||"Sans nom";save();$("tTitle").textContent=cur().nom;$("tSel").selectedOptions[0].textContent=cur().nom});
+  $("tNew").addEventListener("click",()=>{const id=Math.max(0,...data.list.map(p=>p.id))+1;data.list.push({id,nom:"Seven Ponds · passage "+id,notes:[]});data.cur=id;data.mode="ecrire";save();all()});
+  $("tUndo").addEventListener("click",()=>{cur().notes.pop();save();renderChips()});
+  $("tDel").addEventListener("click",()=>{$("tDelOk").hidden=false});
+  $("tDelOk").addEventListener("click",()=>{data.list=data.list.filter(p=>p.id!==cur().id);if(!data.list.length)data.list.push({id:1,nom:"Seven Ponds · passage 1",notes:[]});data.cur=data.list[0].id;save();$("tDelOk").hidden=true;all()});
+  $("tCopy").addEventListener("click",()=>{
+    const txt=`${cur().nom}${data.eb?" (B1 en Mi♭)":""} : `+cur().notes.map(([c,d])=>`${c}-${d}`).join(" ");
+    const ta=$("tCode");ta.value=txt;
+    const show=()=>{ta.hidden=false;ta.focus();ta.select()};
+    try{navigator.clipboard.writeText(txt).then(()=>{$("tCopy").textContent="Copié ✓";setTimeout(()=>$("tCopy").textContent="Copier mon passage",2000)},show)}catch(e){show()}
+  });
+  let timers=[];
+  const clear=()=>document.querySelectorAll(".chip.now").forEach(c=>c.classList.remove("now"));
+  stopPlayer=()=>{timers.forEach(clearTimeout);timers=[];clear()};
+  $("tStop").addEventListener("click",stopPlayer);
+  $("tPlay").addEventListener("click",()=>{stopPlayer();const u=+$("tTempo").value;let t=0;
+    cur().notes.forEach(([c,d],i)=>{const at=t,f=corde(c,over()).f;timers.push(setTimeout(()=>{clear();const e=$("tc"+i);if(e)e.classList.add("now");play(f)},at*1000));t+=d*u});
+    timers.push(setTimeout(stopPlayer,t*1000+300))});
+  all();
+}
+
 /* ---------- routeur ---------- */
 function route(){
   stopPlayer();stopPlayer=()=>{};
   const h=(location.hash||"#accordage").slice(1);
-  const v=h.startsWith("m-")?"morceaux":h;
+  const v=h.startsWith("m-")||h==="trouvailles"?"morceaux":h;
   document.querySelectorAll("nav.tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));
   if(h.startsWith("m-"))viewMorceau(h.slice(2));
   else if(h==="morceaux")viewMorceaux();
+  else if(h==="trouvailles")viewTrouvailles();
   else if(h==="apprendre")viewApprendre();
   else if(h==="ecouter")viewEcouter();
   else viewAccordage();
