@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Nunito+Sans:wght@400;600;800&display=swap">
 <style>
-/* Layout : une colonne, vues par onglets en bas (Accordage / Morceaux / Idées) */
+/* Layout : une colonne, vues par onglets en bas (Accordage / Morceaux / Apprendre / Écouter) */
 :root{
   --bg:#f3f5f4; --panel:#ffffff; --ink:#1d2523; --mute:#5c6b67; --line:#d5ddda;
   --wood:#6b3f26; --wood2:#8a5634; --brass:#c08a1e; --steel:#4f7c8f; --steel2:#a9cdda; --left:#cdbfe6;
@@ -108,7 +108,8 @@ nav.tabs a.on{opacity:1;background:rgba(255,255,255,.08)}
 <nav class="tabs">
   <a href="#accordage" data-v="accordage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 18A9 9 0 1 1 19 18"/><path d="M12 15l3-6"/></svg>Accordage</a>
   <a href="#morceaux" data-v="morceaux"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Morceaux</a>
-  <a href="#idees" data-v="idees"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Idées</a>
+  <a href="#apprendre" data-v="apprendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>Apprendre</a>
+  <a href="#ecouter" data-v="ecouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2" y="14" width="5" height="7" rx="2"/><rect x="17" y="14" width="5" height="7" rx="2"/></svg>Écouter</a>
 </nav>
 
 <script src="morceaux.js"></script>
@@ -156,7 +157,7 @@ function viewAccordage(){
       <span><i class="sw G"></i><b>Zone gauche</b> : blanches, aigu</span>
       <span><i class="sw B"></i><b>Zone centrale</b> : blanches, médium</span>
       <span><i class="sw J"></i><b>Zone centrale</b> : jaunes, grave</span>
-      <span><b>Zone droite</b> (clés) : on ne frappe pas</span>
+      <span><b>Zone droite</b> (gooshi, chevilles) : on ne frappe pas</span>
     </div>
     <div class="panel diag"><svg id="sant" viewBox="0 0 900 580" style="width:100%;min-width:620px;height:auto" role="img" aria-label="Schéma du santour vu du dessus"></svg></div>
     <div class="panel readout" aria-live="polite">
@@ -180,18 +181,18 @@ function viewAccordage(){
     <div class="steps">
       <div class="step"><span class="num">1</span>
         <svg viewBox="0 0 200 110"><rect x="10" y="10" width="180" height="90" rx="10" fill="var(--bg)" stroke="var(--line)"/><path d="M40 80 A60 60 0 0 1 160 80" fill="none" stroke="var(--line)" stroke-width="8"/><path d="M95 80 A60 60 0 0 1 105 21" fill="none" stroke="#2f8a57" stroke-width="8"/><line x1="100" y1="80" x2="100" y2="28" stroke="#2f8a57" stroke-width="4"/><text x="100" y="98" text-anchor="middle" font-size="16" font-weight="800" fill="var(--ink)">E3 ✓</text></svg>
-        <h3>Une seule corde par groupe</h3><p>Pose le téléphone sur le santour. Frappe la 1ʳᵉ corde d'un groupe de 4 et tourne la clé jusqu'au vert.</p></div>
+        <h3>Une seule corde par groupe</h3><p>Pose le téléphone sur le santour. Frappe la 1ʳᵉ corde d'un groupe de 4 et tourne la <b>kelid</b> (clé) jusqu'au vert.</p></div>
       <div class="step"><span class="num">2</span>
         <svg viewBox="0 0 200 110"><g stroke-width="5" stroke-linecap="round"><line x1="20" y1="30" x2="180" y2="30" stroke="#2f8a57"/><line x1="20" y1="48" x2="180" y2="48" stroke="var(--brass)"/><line x1="20" y1="66" x2="180" y2="66" stroke="var(--brass)"/><line x1="20" y1="84" x2="180" y2="84" stroke="var(--brass)"/></g><text x="100" y="20" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">1 juste → copie les 3 autres</text></svg>
         <h3>Les 3 autres à l'oreille</h3><p>Frappe la corde juste puis la suivante. Si le son ondule, tourne jusqu'à ce qu'il devienne lisse.</p></div>
       <div class="step"><span class="num">3</span>
         <svg viewBox="0 0 200 110"><defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs><line x1="10" y1="55" x2="190" y2="55" stroke="var(--steel)" stroke-width="5"/><rect x="62" y="40" width="16" height="30" rx="4" fill="var(--wood2)"/><path d="M58 85 L40 85 M82 85 L100 85" stroke="var(--ink)" stroke-width="3" marker-end="url(#a)"/><text x="18" y="30" font-size="13" font-weight="800" fill="var(--ink)">gauche</text><text x="110" y="30" font-size="13" font-weight="800" fill="var(--ink)">centrale</text></svg>
-        <h3>Zone gauche : on bouge le petit pion</h3><p>Une corde blanche s'accorde dans la zone centrale avec la clé. Si sa partie en zone gauche sonne faux, pousse son pion de bois de 1 mm : vers la gauche la note monte, vers la droite elle descend.</p></div>
+        <h3>Zone gauche : on bouge le kharak</h3><p>Une corde blanche s'accorde dans la zone centrale avec la <b>kelid</b> (clé). Si sa partie en zone gauche sonne faux, pousse son <b>kharak</b> (chevalet, le petit pion de bois) de 1 mm : vers la gauche la note monte, vers la droite elle descend.</p></div>
       <div class="step"><span class="num">4</span>
         <svg viewBox="0 0 200 110"><path d="M100 20 A35 35 0 1 1 65 55" fill="none" stroke="var(--brass)" stroke-width="6"/><path d="M58 44 L65 58 L76 46" fill="none" stroke="var(--brass)" stroke-width="6" stroke-linecap="round"/><text x="100" y="62" text-anchor="middle" font-size="18" font-weight="800" fill="var(--ink)">×2</text></svg>
         <h3>On refait un tour</h3><p>Quand tu tends des cordes, le bois bouge un peu. Repasse sur tout le santour une 2ᵉ fois, c'est normal.</p></div>
     </div>
-    <div class="warn"><b>Sécurité</b><span>Tourne la clé par tout petits coups. Descends un peu sous la note puis remonte vers elle. Si l'accordeur affiche la bonne lettre mais une octave au-dessus (ex. E4 au lieu de E3), ne force pas : la corde pourrait casser.</span></div>
+    <div class="warn"><b>Sécurité</b><span>Tourne la kelid (clé) par tout petits coups. Descends un peu sous la note puis remonte vers elle. Si l'accordeur affiche la bonne lettre mais une octave au-dessus (ex. E4 au lieu de E3), ne force pas : la corde pourrait casser.</span></div>
     <div class="warn"><b>Pas de son ?</b><span>Sur iPhone, vérifie que le bouton silencieux sur le côté n'est pas activé.</span></div>
   </section>
   <section>
@@ -257,9 +258,9 @@ function drawSantour(svg,onPick){
   }
   el("line",{x1:155,y1:24,x2:30,y2:496,stroke:"#2a1a10","stroke-width":6});
   el("line",{x1:745,y1:24,x2:870,y2:496,stroke:"#2a1a10","stroke-width":6});
-  [[165,"ZONE GAUCHE · aigu","middle"],[555,"ZONE CENTRALE · grave + médium","middle"],[885,"ZONE DROITE · clés","end"]].forEach(([x,t,a])=>{
+  [[165,"ZONE GAUCHE · aigu","middle"],[555,"ZONE CENTRALE · grave + médium","middle"],[885,"ZONE DROITE · gooshi","end"]].forEach(([x,t,a])=>{
     el("text",{x,y:530,"text-anchor":a,"font-size":14,"font-weight":800,fill:"var(--ink)"}).textContent=t;});
-  el("text",{x:885,y:548,"text-anchor":"end","font-size":12,fill:"var(--mute)"}).textContent="on n'y frappe pas";
+  el("text",{x:885,y:548,"text-anchor":"end","font-size":12,fill:"var(--mute)"}).textContent="(chevilles) on n'y frappe pas";
   el("line",{x1:310,y1:510,x2:310,y2:540,stroke:"var(--mute)","stroke-width":2,"stroke-dasharray":"4 3"});
   el("line",{x1:770,y1:510,x2:770,y2:540,stroke:"var(--mute)","stroke-width":2,"stroke-dasharray":"4 3"});
   el("text",{x:450,y:572,"text-anchor":"middle","font-size":13,fill:"var(--mute)"}).textContent="▲ toi (côté joueur)";
@@ -333,20 +334,106 @@ function viewMorceau(id){
   document.getElementById("spStop").addEventListener("click",stopPlayer);
 }
 
-function viewIdees(){
-  const yt=q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q);
-  app.innerHTML=`<header style="display:grid;gap:6px"><h1>Idées de morceaux</h1>
-    <p class="lead">Des pistes pour la suite, dans l'esprit de Sina Bathaie. Envoie-moi celle qui te plaît, avec une capture de partition si tu en trouves une : je l'ajoute dans tes morceaux.</p></header>
-  <section><h2>Encore de Sina Bathaie</h2><div class="links">
-    <a class="lnk" href="${yt("Sina Bathaie Breath of Life live santur")}" target="_blank" rel="noopener"><b>Breath of Life</b><small>Son morceau le plus écouté</small></a>
-    <a class="lnk" href="${yt("Sina Bathaie Tehran santur")}" target="_blank" rel="noopener"><b>Tehran</b><small>Avec Saba Zameni</small></a>
-    <a class="lnk" href="${yt("Sina Bathaie Timeless live")}" target="_blank" rel="noopener"><b>Timeless</b><small>Souvent joué avec Seven Ponds en concert</small></a>
+const yt=q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q);
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+const MOTS=[
+  ["mezrab","مضراب","les baguettes","Deux baguettes de bois très légères. Tu passes l'index dans l'anneau, le pouce tient derrière, le majeur soutient dessous.",
+   '<svg viewBox="0 0 120 50"><line x1="10" y1="40" x2="95" y2="18" stroke="var(--wood2)" stroke-width="5" stroke-linecap="round"/><circle cx="102" cy="16" r="7" fill="none" stroke="var(--wood2)" stroke-width="4"/><rect x="4" y="36" width="16" height="9" rx="3" fill="var(--wood)"/></svg>'],
+  ["kharak","خرک","le chevalet","Le petit pion de bois sous chaque groupe de 4 cordes. Il y en a 18, en deux colonnes. On peut le pousser un tout petit peu pour ajuster une note.",
+   '<svg viewBox="0 0 120 50"><g stroke="var(--steel)" stroke-width="2"><line x1="5" y1="18" x2="115" y2="18"/><line x1="5" y1="22" x2="115" y2="22"/><line x1="5" y1="26" x2="115" y2="26"/><line x1="5" y1="30" x2="115" y2="30"/></g><path d="M52 34 L56 12 H64 L68 34 Z" fill="var(--wood2)"/><rect x="48" y="34" width="24" height="6" rx="2" fill="var(--wood)"/></svg>'],
+  ["sim","سیم","la corde","72 cordes, rangées par groupes de 4 qui jouent la même note. Les jaunes (laiton) sont graves, les blanches (acier) plus aiguës.",
+   '<svg viewBox="0 0 120 50"><g stroke-width="2.5"><line x1="5" y1="14" x2="115" y2="14" stroke="var(--brass)"/><line x1="5" y1="19" x2="115" y2="19" stroke="var(--brass)"/><line x1="5" y1="24" x2="115" y2="24" stroke="var(--brass)"/><line x1="5" y1="29" x2="115" y2="29" stroke="var(--brass)"/></g><text x="60" y="46" text-anchor="middle" font-size="11" font-weight="800" fill="var(--ink)">× 4</text></svg>'],
+  ["gooshi","گوشی","la cheville","Les petites tiges de métal à droite, une par corde. C'est elles qu'on tourne pour accorder.",
+   '<svg viewBox="0 0 120 50"><g fill="var(--mute)"><rect x="30" y="10" width="8" height="30" rx="2"/><rect x="50" y="10" width="8" height="30" rx="2"/><rect x="70" y="10" width="8" height="30" rx="2"/><rect x="90" y="10" width="8" height="30" rx="2"/></g></svg>'],
+  ["kelid","کلید","la clé d'accordage","La clé en forme de T qui se pose sur la gooshi (cheville) pour la tourner.",
+   '<svg viewBox="0 0 120 50"><rect x="30" y="8" width="60" height="9" rx="4" fill="var(--mute)"/><rect x="55" y="15" width="10" height="30" rx="3" fill="var(--mute)"/></svg>'],
+  ["dastgah","دستگاه","le mode","Une « couleur » de notes, un peu comme majeur et mineur, mais plus riche. La musique persane en compte 7."],
+  ["koron","کرن","baisser d'environ ¼ de ton","Une note koron est un peu plus basse que la normale, moins qu'un bémol. Inventé à l'écrit par Ali-Naqi Vaziri."],
+  ["sori","سری","monter d'environ ¼ de ton","Une note sori est un peu plus haute que la normale, moins qu'un dièse."],
+  ["kouk","کوک","l'accordage","« Sol kouk » est l'accordage normal de ton santour, celui de l'onglet Accordage."]
+];
+
+function viewApprendre(){
+  const done=store.get("parcours",{});
+  const N1=[["mots","Connaître les 5 mots du santour"],["kouk","Accorder mon santour une première fois"],["mezrab","Tenir les mezrab (baguettes)"],["sakura","Jouer Sakura en entier, lentement"],["motif","Jouer le motif de Seven Ponds × 15"]];
+  const N2=[["mahur","Jouer la gamme de Mahur"],["koron","Entendre la différence entre La et La koron"],["shur","Accorder et jouer la gamme de Shur"]];
+  const chk=(l,lock)=>l.map(([k,t])=>`<label style="display:flex;gap:10px;align-items:center;padding:6px 0;${lock?"opacity:.55":""}"><input type="checkbox" id="p-${k}" data-k="${k}" ${done[k]?"checked":""} style="width:22px;height:22px;accent-color:var(--brass)"> ${t}</label>`).join("");
+  const n1ok=N1.every(([k])=>done[k]);
+  const sc=(n,f,tag)=>`<button class="cellbtn ${tag||"B"}" type="button" style="width:auto;padding:6px 10px" data-f="${f}">${n}</button>`;
+  const KOR=440*Math.pow(2,-0.5/12), SOR=440*Math.pow(2,0.5/12);
+  app.innerHTML=`<header style="display:grid;gap:6px"><h1>Apprendre</h1><p class="lead">Les mots du santour, ton parcours, et les dastgahs quand tu seras prête.</p></header>
+  <section><h2>Mon parcours</h2>
+    <div class="panel"><b>Niveau 1 · Premiers pas</b>${chk(N1)}</div>
+    <div class="panel"><b>Niveau 2 · Les dastgahs ${n1ok?"":"(quand le niveau 1 est fini)"}</b>${chk(N2,!n1ok)}</div>
+    <p class="lead">Coche au fur et à mesure. Quand tu as fini un niveau, dis-le à Claude : il ajoute des morceaux un peu plus difficiles.</p>
+  </section>
+  <section><h2>Les mots du santour</h2>
+    <div class="steps">${MOTS.slice(0,5).map(([m,fa,fr,txt,svg])=>`<div class="step"><div>${svg}</div><h3 style="font-size:1.25rem">${m} <span class="lead" style="font-weight:400">(${fr})</span></h3><span style="font-size:1.3rem;color:var(--mute)" dir="rtl">${fa}</span><p>${txt}</p></div>`).join("")}</div>
+    <div class="panel tbl"><table><tbody>${MOTS.slice(5).map(([m,fa,fr,txt])=>`<tr><td style="text-align:left"><b>${m}</b><br><span class="lead" dir="rtl">${fa}</span></td><td style="text-align:left"><b>${fr}</b><br><small class="lead">${txt}</small></td></tr>`).join("")}</tbody></table></div>
+  </section>
+  <section><h2>Bien frapper</h2>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><h3>Le poignet travaille</h3><p>Avant-bras parallèles, à 10–15 cm au-dessus du santour. Ce sont les poignets qui bougent, pas les bras.</p></div>
+      <div class="step"><span class="num">2</span><h3>À 3–4 cm du kharak</h3><p>Frappe la corde à 3 ou 4 cm de son kharak (chevalet). Le son est plus clair.</p></div>
+      <div class="step"><span class="num">3</span><h3>Main droite, main gauche</h3><p>Alterne toujours : droite, gauche, droite, gauche. Même sur une seule note répétée comme le motif de Seven Ponds.</p></div>
+    </div>
+  </section>
+  <section><h2>Koron et sori en image</h2>
+    <div class="panel" style="display:grid;gap:10px">
+      <svg viewBox="0 0 340 90" style="width:100%;max-width:520px;height:auto">
+        <line x1="40" y1="45" x2="300" y2="45" stroke="var(--line)" stroke-width="4"/>
+        ${[[40,"La♭","−100"],[105,"La koron","−50"],[170,"La","0"],[235,"La sori","+50"],[300,"Si♭","+100"]].map(([x,n,c],i)=>`<circle cx="${x}" cy="45" r="${i==2?12:9}" fill="${i==1?"var(--left)":i==3?"var(--steel2)":i==2?"var(--brass)":"var(--panel)"}" stroke="var(--ink)" stroke-width="2"/><text x="${x}" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="var(--ink)">${n}</text><text x="${x}" y="78" text-anchor="middle" font-size="11" fill="var(--mute)">${c} cents</text>`).join("")}
+      </svg>
+      <p>Sur ton accordeur, une note <b>koron</b> s'affiche environ <b>50 cents sous</b> la note, une note <b>sori</b> environ <b>50 cents au-dessus</b>. Les musiciens ajustent ensuite à l'oreille. Sur le santour, on règle ces petites différences en poussant le <b>kharak</b> (chevalet).</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${sc("La",440)}${sc("La koron",KOR,"G")}${sc("La sori",SOR,"B")}</div>
+    </div>
+  </section>
+  <section><h2>Les dastgahs pour débuter</h2>
+    <div class="steps">
+      <div class="step"><h3 style="font-size:1.25rem">Mahur <span class="lead" style="font-weight:400">ماهور</span></h3>
+        <p>Proche du mode majeur : lumineux, joyeux. <b>Bonne nouvelle :</b> avec ton accordage normal, tu peux jouer Mahur sur Do sans rien changer.</p>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${[["Do","J6"],["Ré","J7"],["Mi","J8"],["Fa","J9"],["Sol","B3"],["La","B4"],["Si","B5"],["Do","B6"]].map(([n,c])=>{const d=corde(c);return sc(`${n}<small>${c}</small>`,d.f,d.c)}).join("")}</div>
+        <button class="btn" type="button" id="gMahur">▶ Écouter la gamme</button></div>
+      <div class="step"><h3 style="font-size:1.25rem">Shur <span class="lead" style="font-weight:400">شور</span></h3>
+        <p>Le dastgah le plus important, plus mélancolique. Sur Sol, sa gamme est : Sol, <b>La koron</b>, Si♭, Do, Ré, Mi♭, Fa. Il faut donc réaccorder des cordes : c'est pour le niveau 2.</p>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${[["Sol",392],["La koron",KOR,"G"],["Si♭",466.16],["Do",523.25],["Ré",587.33],["Mi♭",622.25],["Fa",698.46],["Sol",783.99]].map(([n,f,t])=>sc(n,f,t)).join("")}</div>
+        <button class="btn" type="button" id="gShur">▶ Écouter la gamme</button></div>
+    </div>
+    <p class="lead">Il existe 7 dastgahs. Mahur et Shur sont les deux par lesquels on commence le plus souvent.</p>
+  </section>`;
+  app.querySelectorAll("input[data-k]").forEach(i=>i.addEventListener("change",()=>{const d=store.get("parcours",{});d[i.dataset.k]=i.checked;store.set("parcours",d);if(N1.some(([k])=>k===i.dataset.k))viewApprendre()}));
+  app.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>play(+b.dataset.f)));
+  const gamme=fs=>{fs.forEach((f,i)=>setTimeout(()=>play(f),i*450))};
+  document.getElementById("gMahur").addEventListener("click",()=>gamme(["J6","J7","J8","J9","B3","B4","B5","B6"].map(c=>corde(c).f)));
+  document.getElementById("gShur").addEventListener("click",()=>gamme([392,KOR,466.16,523.25,587.33,622.25,698.46,783.99]));
+}
+
+function viewEcouter(){
+  const L=(t,u,d)=>`<a class="lnk" href="${u}" target="_blank" rel="noopener"><b>${t}</b><small>${d}</small></a>`;
+  app.innerHTML=`<header style="display:grid;gap:6px"><h1>Écouter</h1><p class="lead">Du santour moderne, dans l'esprit de Sina Bathaie, pour t'imprégner du son.</p></header>
+  <section><h2>Sina Bathaie</h2><div class="links">
+    ${L("Seven Ponds (Live)",yt("Sina Bathaie Seven Ponds live"),"Le morceau que tu apprends")}
+    ${L("Breath of Life",yt("Sina Bathaie CamelVIP Breath of Life"),"Avec CamelVIP, son titre le plus écouté")}
+    ${L("Bloom",yt("Sina Bathaie Bloom"),"Santour et house progressive, très doux au début")}
+    ${L("Tehran",yt("Sina Bathaie Tehran Saba Zameni"),"Avec la chanteuse Saba Zameni")}
+    ${L("Anatoliya",yt("Cafe De Anatolia Sina Bathaie Anatoliya"),"Avec Cafe De Anatolia")}
+    ${L("Mix de 2 heures",yt("Sina Bathaie 2 hour mix"),"Pour pratiquer ou te détendre")}
   </div></section>
-  <section><h2>Partitions de débutant</h2><div class="links">
-    <a class="lnk" href="https://www.notdoni.com/" target="_blank" rel="noopener"><b>notdoni.com</b><small>Là où tu as trouvé Seven Ponds : fais une capture de l'aperçu</small></a>
-    <a class="lnk" href="${yt("easy santur song for beginners tutorial")}" target="_blank" rel="noopener"><b>Morceaux faciles au santour</b><small>Tutoriels pour débutants</small></a>
+  <section><h2>À découvrir</h2><div class="links">
+    ${L("Kourosh Zolani · Peaceful Planet",yt("Kourosh Zolani Peaceful Planet santour"),"Santour new age, calme et méditatif")}
+    ${L("Cafe De Anatolia",yt("Cafe De Anatolia"),"Label d'organic house aux couleurs orientales")}
+    ${L("Persian Deep House","https://open.spotify.com/playlist/4Db2ZU9R696XJUg3gQj9Es","Playlist Spotify")}
+    ${L("Persian Organic House Mix",yt("Persian organic house mix santur"),"Ambiance proche, pas toujours avec du santour")}
   </div></section>
-  <div class="warn"><b>Comment ça marche</b><span>Quand tu me donnes un morceau, je le traduis en cases de couleur, je te dis s'il faut changer une corde, et il apparaît dans « Morceaux » sur ton téléphone.</span></div>`;
+  <section><h2>Morceaux à apprendre plus tard</h2>
+    <p class="lead">Trouve l'aperçu de la partition sur notdoni, fais une capture et envoie-la à Claude : il l'ajoute dans tes morceaux.</p>
+    <div class="links">
+      ${L("Breath of Life",yt("Sina Bathaie Breath of Life santur"),"Sina Bathaie")}
+      ${L("Timeless",yt("Sina Bathaie Timeless live"),"Souvent joué avec Seven Ponds en concert")}
+      ${L("notdoni.com","https://www.notdoni.com/","Le site où tu as trouvé Seven Ponds")}
+    </div>
+  </section>`;
 }
 
 /* ---------- routeur ---------- */
@@ -357,7 +444,8 @@ function route(){
   document.querySelectorAll("nav.tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));
   if(h.startsWith("m-"))viewMorceau(h.slice(2));
   else if(h==="morceaux")viewMorceaux();
-  else if(h==="idees")viewIdees();
+  else if(h==="apprendre")viewApprendre();
+  else if(h==="ecouter")viewEcouter();
   else viewAccordage();
   window.scrollTo(0,0);
 }
