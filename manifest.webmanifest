@@ -1,0 +1,14 @@
+{
+  "name": "Mon Santour",
+  "short_name": "Santour",
+  "start_url": "./#accordage",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1d2523",
+  "theme_color": "#1d2523",
+  "lang": "fr",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

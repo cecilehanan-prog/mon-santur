@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mon Santour</title>
+<meta name="theme-color" content="#1d2523">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mon Santour">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Nunito+Sans:wght@400;600;800&display=swap">
+<style>
+/* Layout : une colonne, vues par onglets en bas (Accordage / Morceaux / Idées) */
+:root{
+  --bg:#f3f5f4; --panel:#ffffff; --ink:#1d2523; --mute:#5c6b67; --line:#d5ddda;
+  --wood:#6b3f26; --wood2:#8a5634; --brass:#c08a1e; --steel:#4f7c8f; --steel2:#a9cdda; --left:#cdbfe6;
+  --hi:#fff3cf; --nav:#1d2523; --navfg:#e8eeec;
+  --display:"Marcellus", Georgia, serif; --body:"Nunito Sans", system-ui, sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#141a19; --panel:#1d2524; --ink:#e8eeec; --mute:#9aaba6; --line:#33403d;
+  --wood:#5a3420; --wood2:#7a4a2c; --brass:#e0aa3a; --steel:#7fb0c4; --hi:#3a3220; --nav:#0d1211;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent}
+.wrap{max-width:980px;margin:0 auto;padding-block:20px calc(96px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:30px}
+h1,h2{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.9rem,6vw,2.6rem)}
+h2{font-size:1.45rem}
+p{margin:0;max-width:65ch}
+.lead{color:var(--mute)}
+section{display:grid;gap:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.92rem;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.sw{width:22px;height:14px;border-radius:4px;display:inline-block}
+.sw.J{background:var(--brass)} .sw.B{background:var(--steel2)} .sw.G{background:var(--left)}
+.diag{overflow-x:auto}
+svg text{font-family:var(--body)}
+.course{cursor:pointer}
+.course.on .str{stroke-width:5}
+.readout{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center}
+.big{font-family:var(--display);font-size:3rem;line-height:1;color:var(--brass);min-width:2.2ch}
+.btn{font:inherit;font-weight:800;border:2px solid var(--ink);background:transparent;color:var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer}
+.btn:active{background:var(--ink);color:var(--bg)}
+.btn:focus-visible,.chipbtn:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+.tbl{overflow-x:auto;padding:0}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+th{font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);line-height:1.2}
+th .sw{display:block;margin:4px auto 0;width:100%;height:6px}
+td.rg{font-family:var(--display);font-size:1.3rem;color:var(--mute);width:2.5em}
+tr.on td{background:var(--hi)}
+.cellbtn{border:0;width:100%;border-radius:10px;padding:6px 4px;font:inherit;font-weight:800;color:#1d2523;cursor:pointer;line-height:1.15}
+.cellbtn small{display:block;font-weight:600;font-size:.72rem;opacity:.8}
+.cellbtn.J{background:var(--brass)} .cellbtn.B{background:var(--steel2)} .cellbtn.G{background:var(--left)}
+.cellbtn.chg{outline:3px dashed var(--ink);outline-offset:-3px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:8px;align-content:start;min-width:0}
+.step svg{width:100%;height:auto}
+.step h3{margin:0;font-size:1.02rem}
+.step p{font-size:.92rem;color:var(--mute)}
+.num{font-family:var(--display);color:var(--brass);font-size:1.4rem}
+.warn{border-left:5px solid var(--brass);background:var(--panel);padding:12px 14px;border-radius:0 12px 12px 0;display:grid;gap:6px}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.lnk{display:grid;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-decoration:none;color:var(--ink);min-width:0}
+.lnk small{color:var(--mute)}
+.lnk b::before{content:"▶ ";color:var(--brass)}
+/* morceaux */
+.songs{display:grid;gap:12px}
+.song{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;text-decoration:none;color:var(--ink)}
+.song .ico{width:52px;height:52px;border-radius:12px;background:var(--wood2);display:grid;place-content:center;font-family:var(--display);font-size:1.5rem;color:#fff}
+.song b{font-size:1.1rem;display:block}
+.pill{font-size:.75rem;font-weight:800;border-radius:999px;padding:3px 10px;background:var(--hi);color:var(--ink);white-space:nowrap}
+.back{color:var(--ink);font-weight:800;text-decoration:none}
+.blk{display:grid;gap:6px}
+.blk-h{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.play2{border:2px solid var(--line);background:none;color:var(--ink);border-radius:999px;padding:2px 12px;font:inherit;font-weight:800;cursor:pointer}
+.bars{display:flex;flex-wrap:wrap;gap:8px}
+.bar{display:flex;gap:3px;padding:4px;border-left:2px solid var(--mute)}
+.chip{height:52px;border-radius:8px;display:grid;place-content:center;text-align:center;line-height:1.1;font-weight:800;font-size:.85rem;color:#1d2523;transition:transform .1s}
+.chip small{font-weight:600;font-size:.72rem}
+.chip.J{background:var(--brass)} .chip.B{background:var(--steel2)} .chip.G{background:var(--left)}
+.chip.R{border:2px dashed var(--line);color:var(--mute);background:transparent}
+.chip.tie{box-shadow:inset 0 -5px 0 rgba(0,0,0,.25)}
+.chip.now{transform:scale(1.12);outline:3px solid var(--ink)}
+.times{font-family:var(--display);color:var(--brass);font-size:1.3rem}
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:8px;z-index:2}
+select{font:inherit;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+/* nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--nav);display:flex;justify-content:center;gap:4px;
+  padding:8px max(8px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));z-index:5}
+nav.tabs a{flex:1;max-width:180px;display:grid;justify-items:center;gap:2px;color:var(--navfg);opacity:.6;text-decoration:none;font-size:.78rem;font-weight:800;padding:4px 0;border-radius:10px}
+nav.tabs a svg{width:26px;height:26px}
+nav.tabs a.on{opacity:1;background:rgba(255,255,255,.08)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap" id="app"></main>
+
+<nav class="tabs">
+  <a href="#accordage" data-v="accordage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 18A9 9 0 1 1 19 18"/><path d="M12 15l3-6"/></svg>Accordage</a>
+  <a href="#morceaux" data-v="morceaux"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Morceaux</a>
+  <a href="#idees" data-v="idees"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>Idées</a>
+</nav>
+
+<script src="morceaux.js"></script>
+<script>
+/* ---------- cordes du santour (accord sol kouk) ---------- */
+const SOL=["Mi","Fa","Sol","La","Si","Do","Ré","Mi","Fa"];
+const LET=["E","F","G","A","B","C","D","E","F"];
+const SEMI=[0,1,3,5,7,8,10,12,13];
+const BASE={J:3,B:4,G:5};
+const EHZ={3:164.81,4:329.63,5:659.26};
+const ZONE={J:"zone centrale, corde jaune (grave)",B:"zone centrale, corde blanche (médium)",G:"zone gauche, corde blanche (aigu)"};
+function corde(id,over){
+  if(id==="R")return{c:"R",n:"silence",l:"",f:0};
+  const z=id[0],r=+id.slice(1)-1,o=BASE[z];
+  const d={id,c:z,r,n:SOL[r],l:LET[r]+(o+(r>=5?1:0)),f:EHZ[o]*Math.pow(2,SEMI[r]/12)};
+  // une corde blanche changée change aussi en zone gauche (même corde)
+  const key=z==="G"?"B"+(r+1):id;
+  if(over&&over[key]){const v=over[key];d.n=v.vers;d.chg=true;
+    if(z==="G"){d.f=v.f*2;d.l=v.accordeur.split("/").pop().trim().replace("4","5")}else{d.f=v.f;d.l=v.accordeur}}
+  return d;
+}
+const fmt=f=>f.toFixed(1).replace(".",",");
+
+/* ---------- son ---------- */
+let ctx;
+function play(f){
+  if(!f)return;
+  try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();}catch(e){return}
+  const t=ctx.currentTime,out=ctx.createGain();
+  out.gain.setValueAtTime(0.0001,t);out.gain.exponentialRampToValueAtTime(0.35,t+0.005);out.gain.exponentialRampToValueAtTime(0.0001,t+2.6);out.connect(ctx.destination);
+  [[1,1],[2,.45],[3,.22],[4,.1]].forEach(([m,a])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=f*m*(1+(m-1)*0.0003);g.gain.value=a;o.connect(g);g.connect(out);o.start(t);o.stop(t+2.7)});
+}
+
+/* ---------- vues ---------- */
+const app=document.getElementById("app");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let stopPlayer=()=>{};
+
+function viewAccordage(){
+  app.innerHTML=`
+  <header style="display:grid;gap:6px"><h1>Accordage</h1>
+    <p class="lead">Touche une corde sur le dessin ou dans le tableau : tu vois la note à viser sur ton accordeur et tu l'entends.</p></header>
+  <section>
+    <div class="legend">
+      <span><i class="sw G"></i><b>Zone gauche</b> : blanches, aigu</span>
+      <span><i class="sw B"></i><b>Zone centrale</b> : blanches, médium</span>
+      <span><i class="sw J"></i><b>Zone centrale</b> : jaunes, grave</span>
+      <span><b>Zone droite</b> (clés) : on ne frappe pas</span>
+    </div>
+    <div class="panel diag"><svg id="sant" viewBox="0 0 900 580" style="width:100%;min-width:620px;height:auto" role="img" aria-label="Schéma du santour vu du dessus"></svg></div>
+    <div class="panel readout" aria-live="polite">
+      <div class="big" id="rNote">Mi</div>
+      <div style="display:grid;gap:2px">
+        <b id="rName">Choisis une corde</b>
+        <span id="rInfo" class="lead">Sur l'accordeur : E3 · 164,8 Hz</span>
+        <div><button class="btn" id="rPlay" type="button" style="margin-top:6px">Écouter la note</button></div>
+      </div>
+    </div>
+  </section>
+  <section>
+    <h2>Le tableau complet</h2>
+    <p class="lead">Dans l'ordre de ton santour : rangée 9 en haut (la plus loin de toi), rangée 1 en bas.</p>
+    <div class="panel tbl"><table><thead><tr><th>Rangée</th>
+      <th>Zone gauche<br>blanche<i class="sw G"></i></th><th>Zone centrale<br>blanche<i class="sw B"></i></th><th>Zone centrale<br>jaune<i class="sw J"></i></th>
+    </tr></thead><tbody id="tb"></tbody></table></div>
+  </section>
+  <section>
+    <h2>Accorder en 4 gestes</h2>
+    <div class="steps">
+      <div class="step"><span class="num">1</span>
+        <svg viewBox="0 0 200 110"><rect x="10" y="10" width="180" height="90" rx="10" fill="var(--bg)" stroke="var(--line)"/><path d="M40 80 A60 60 0 0 1 160 80" fill="none" stroke="var(--line)" stroke-width="8"/><path d="M95 80 A60 60 0 0 1 105 21" fill="none" stroke="#2f8a57" stroke-width="8"/><line x1="100" y1="80" x2="100" y2="28" stroke="#2f8a57" stroke-width="4"/><text x="100" y="98" text-anchor="middle" font-size="16" font-weight="800" fill="var(--ink)">E3 ✓</text></svg>
+        <h3>Une seule corde par groupe</h3><p>Pose le téléphone sur le santour. Frappe la 1ʳᵉ corde d'un groupe de 4 et tourne la clé jusqu'au vert.</p></div>
+      <div class="step"><span class="num">2</span>
+        <svg viewBox="0 0 200 110"><g stroke-width="5" stroke-linecap="round"><line x1="20" y1="30" x2="180" y2="30" stroke="#2f8a57"/><line x1="20" y1="48" x2="180" y2="48" stroke="var(--brass)"/><line x1="20" y1="66" x2="180" y2="66" stroke="var(--brass)"/><line x1="20" y1="84" x2="180" y2="84" stroke="var(--brass)"/></g><text x="100" y="20" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">1 juste → copie les 3 autres</text></svg>
+        <h3>Les 3 autres à l'oreille</h3><p>Frappe la corde juste puis la suivante. Si le son ondule, tourne jusqu'à ce qu'il devienne lisse.</p></div>
+      <div class="step"><span class="num">3</span>
+        <svg viewBox="0 0 200 110"><defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--ink)"/></marker></defs><line x1="10" y1="55" x2="190" y2="55" stroke="var(--steel)" stroke-width="5"/><rect x="62" y="40" width="16" height="30" rx="4" fill="var(--wood2)"/><path d="M58 85 L40 85 M82 85 L100 85" stroke="var(--ink)" stroke-width="3" marker-end="url(#a)"/><text x="18" y="30" font-size="13" font-weight="800" fill="var(--ink)">gauche</text><text x="110" y="30" font-size="13" font-weight="800" fill="var(--ink)">centrale</text></svg>
+        <h3>Zone gauche : on bouge le petit pion</h3><p>Une corde blanche s'accorde dans la zone centrale avec la clé. Si sa partie en zone gauche sonne faux, pousse son pion de bois de 1 mm : vers la gauche la note monte, vers la droite elle descend.</p></div>
+      <div class="step"><span class="num">4</span>
+        <svg viewBox="0 0 200 110"><path d="M100 20 A35 35 0 1 1 65 55" fill="none" stroke="var(--brass)" stroke-width="6"/><path d="M58 44 L65 58 L76 46" fill="none" stroke="var(--brass)" stroke-width="6" stroke-linecap="round"/><text x="100" y="62" text-anchor="middle" font-size="18" font-weight="800" fill="var(--ink)">×2</text></svg>
+        <h3>On refait un tour</h3><p>Quand tu tends des cordes, le bois bouge un peu. Repasse sur tout le santour une 2ᵉ fois, c'est normal.</p></div>
+    </div>
+    <div class="warn"><b>Sécurité</b><span>Tourne la clé par tout petits coups. Descends un peu sous la note puis remonte vers elle. Si l'accordeur affiche la bonne lettre mais une octave au-dessus (ex. E4 au lieu de E3), ne force pas : la corde pourrait casser.</span></div>
+    <div class="warn"><b>Pas de son ?</b><span>Sur iPhone, vérifie que le bouton silencieux sur le côté n'est pas activé.</span></div>
+  </section>
+  <section>
+    <h2>Vidéos</h2>
+    <div class="links">
+      <a class="lnk" href="https://www.youtube.com/results?search_query=how+to+tune+santur" target="_blank" rel="noopener"><b>Tutoriels d'accordage</b><small>YouTube</small></a>
+      <a class="lnk" href="https://salamuzik.com/blogs/news/how-to-tune-a-persian-santoor" target="_blank" rel="noopener"><b>How to tune a Persian santoor</b><small>Salamuzik, vidéo + explications</small></a>
+    </div>
+  </section>`;
+  drawSantour(document.getElementById("sant"),pick);
+  const tb=document.getElementById("tb");
+  for(let r=8;r>=0;r--){
+    const tr=document.createElement("tr");tr.id="row"+r;
+    tr.innerHTML=`<td class="rg">${r+1}</td>`+["G","B","J"].map(z=>{const d=corde(z+(r+1));
+      return `<td><button class="cellbtn ${z}" type="button" data-id="${d.id}">${d.n}<small>${d.l} · ${fmt(d.f)} Hz</small></button></td>`}).join("");
+    tb.appendChild(tr);
+  }
+  tb.addEventListener("click",e=>{const b=e.target.closest(".cellbtn");if(b)pick(b.dataset.id)});
+  let cur="J1";
+  function pick(id){
+    cur=id;const d=corde(id);
+    document.querySelectorAll(".course.on").forEach(x=>x.classList.remove("on"));
+    const g=document.querySelector(`.course[data-r="${d.r}"][data-z="${d.c==="J"?"J":"B"}"]`);if(g)g.classList.add("on");
+    document.querySelectorAll("tr.on").forEach(x=>x.classList.remove("on"));
+    document.getElementById("row"+d.r).classList.add("on");
+    document.getElementById("rNote").textContent=d.n;
+    document.getElementById("rName").textContent=`Rangée ${d.r+1} · ${ZONE[d.c]}`;
+    document.getElementById("rInfo").textContent=`Sur l'accordeur : ${d.l} · ${fmt(d.f)} Hz`;
+    play(d.f);
+  }
+  document.getElementById("rPlay").addEventListener("click",()=>play(corde(cur).f));
+}
+
+function drawSantour(svg,onPick){
+  const NS="http://www.w3.org/2000/svg";
+  const el=(t,a,p=svg)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+  el("path",{d:"M150 20 L750 20 L880 500 L20 500 Z",fill:"var(--wood)"});
+  el("path",{d:"M165 34 L735 34 L858 488 L42 488 Z",fill:"var(--wood2)"});
+  el("circle",{cx:450,cy:260,r:22,fill:"var(--wood)"});
+  for(let k=0;k<18;k++){
+    const y=470-k*25.5,t=(y-20)/480,xl=150-130*t,xr=750+130*t;
+    const isBrass=k%2===0,r=Math.floor(k/2);
+    const g=el("g",{class:"course","data-r":r,"data-z":isBrass?"J":"B"});
+    const lbl={"font-weight":800,fill:"var(--ink)","paint-order":"stroke",stroke:"var(--wood2)","stroke-width":4};
+    for(let s=0;s<4;s++)el("line",{class:"str",x1:xl+8,x2:xr-8,y1:y-4.5+s*3,y2:y-4.5+s*3,stroke:isBrass?"var(--brass)":"#c9d4d9","stroke-width":1.2},g);
+    if(isBrass){
+      const bx=xr-60-r*7,d=corde("J"+(r+1));
+      el("rect",{x:bx-5,y:y-9,width:10,height:18,rx:3,fill:"#3a2416"},g);
+      el("rect",{x:xl,y:y-11,width:xr-xl,height:22,fill:"transparent"},g);
+      el("text",{...lbl,x:bx-80,y:y+5,"font-size":14},g).textContent=`${d.n} ${d.l}`;
+      g.addEventListener("click",()=>onPick("J"+(r+1)));
+    }else{
+      const bx=xl+(xr-xl)*0.33,dm=corde("B"+(r+1)),dh=corde("G"+(r+1));
+      el("rect",{x:bx-5,y:y-9,width:10,height:18,rx:3,fill:"#3a2416"},g);
+      const L=el("rect",{x:xl,y:y-11,width:bx-xl,height:22,fill:"transparent"},g);
+      const R=el("rect",{x:bx,y:y-11,width:xr-bx,height:22,fill:"transparent"},g);
+      const t1=el("text",{...lbl,x:bx-62,y:y+5,"font-size":13},g);t1.textContent=`${dh.n} ${dh.l}`;
+      const t2=el("text",{...lbl,x:bx+16,y:y+5,"font-size":14},g);t2.textContent=`${dm.n} ${dm.l}`;
+      [L,t1].forEach(e=>e.addEventListener("click",()=>onPick("G"+(r+1))));
+      [R,t2].forEach(e=>e.addEventListener("click",()=>onPick("B"+(r+1))));
+    }
+    el("text",{x:xr+14,y:y+4,"font-size":11,fill:"var(--mute)"}).textContent=r+1;
+  }
+  el("line",{x1:155,y1:24,x2:30,y2:496,stroke:"#2a1a10","stroke-width":6});
+  el("line",{x1:745,y1:24,x2:870,y2:496,stroke:"#2a1a10","stroke-width":6});
+  [[165,"ZONE GAUCHE · aigu","middle"],[555,"ZONE CENTRALE · grave + médium","middle"],[885,"ZONE DROITE · clés","end"]].forEach(([x,t,a])=>{
+    el("text",{x,y:530,"text-anchor":a,"font-size":14,"font-weight":800,fill:"var(--ink)"}).textContent=t;});
+  el("text",{x:885,y:548,"text-anchor":"end","font-size":12,fill:"var(--mute)"}).textContent="on n'y frappe pas";
+  el("line",{x1:310,y1:510,x2:310,y2:540,stroke:"var(--mute)","stroke-width":2,"stroke-dasharray":"4 3"});
+  el("line",{x1:770,y1:510,x2:770,y2:540,stroke:"var(--mute)","stroke-width":2,"stroke-dasharray":"4 3"});
+  el("text",{x:450,y:572,"text-anchor":"middle","font-size":13,fill:"var(--mute)"}).textContent="▲ toi (côté joueur)";
+}
+
+function viewMorceaux(){
+  app.innerHTML=`<header style="display:grid;gap:6px"><h1>Mes morceaux</h1>
+    <p class="lead">Choisis un morceau. Chaque case de couleur te montre la corde à frapper.</p></header>
+    <div class="songs">${MORCEAUX.map(m=>`<a class="song" href="#m-${m.id}">
+      <span class="ico">${esc(m.titre[0])}</span>
+      <span><b>${esc(m.titre)}</b><span class="lead">${esc(m.artiste)}</span></span>
+      <span class="pill">${esc(m.niveau)}</span></a>`).join("")}</div>
+    <div class="warn"><b>Ajouter un morceau</b><span>Envoie à Claude le nom d'un morceau ou une capture de partition : il l'ajoute ici.</span></div>`;
+}
+
+function viewMorceau(id){
+  const m=MORCEAUX.find(x=>x.id===id);if(!m){location.hash="#morceaux";return}
+  const over={};m.accordage.forEach(a=>over[a.corde]=a);
+  const used=[...new Set(m.blocs.flatMap(b=>b.mesures.flat().map(n=>n[0])).filter(c=>c!=="R"))];
+  const order=c=>({G:0,B:1,J:2}[c[0]]*10+(9-+c.slice(1)));
+  app.innerHTML=`
+  <a class="back" href="#morceaux">‹ Mes morceaux</a>
+  <header style="display:grid;gap:4px"><h1>${esc(m.titre)}</h1><p class="lead">${esc(m.artiste)} · ${esc(m.mesure)}</p></header>
+  <section>
+    <h2>Avant de jouer</h2>
+    ${m.accordage.length?m.accordage.map(a=>`<div class="warn"><b>Corde ${a.corde} : ${a.de} → ${a.vers}</b>
+      <span>Sur l'accordeur : <b>${a.accordeur} · ${fmt(a.f)} Hz</b></span><span class="lead">${esc(a.aide||"")}</span>
+      <div><button class="btn" type="button" data-f="${a.f}">Écouter ${a.vers}</button></div></div>`).join("")
+      :`<div class="warn"><b>Rien à changer</b><span>${esc(m.accordageNote||"Accordage normal.")}</span></div>`}
+    <p class="lead">Les cordes de ce morceau (touche pour écouter) :</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${used.sort((a,b)=>order(a)-order(b)).map(c=>{const d=corde(c,over);
+      return `<button class="cellbtn ${d.c}${d.chg?" chg":""}" style="width:auto;padding:6px 12px" type="button" data-f="${d.f}">${d.n}<small>${c}</small></button>`}).join("")}</div>
+    <div class="legend"><span><i class="sw J"></i><b>J</b> jaune centre</span><span><i class="sw B"></i><b>B</b> blanche centre</span><span><i class="sw G"></i><b>G</b> blanche gauche</span><span>Le chiffre = la rangée (1 = près de toi)</span></div>
+  </section>
+  <section>
+    <h2>Le morceau</h2>
+    <div class="ctrl">
+      <button class="btn" type="button" id="spAll">▶ Tout jouer</button>
+      <button class="btn" type="button" id="spStop">■ Stop</button>
+      <select id="spTempo" aria-label="Vitesse"><option value="2">Très lent</option><option value="1.5" selected>Lent</option><option value="1">Normal</option></select>
+    </div>
+    <div class="panel" style="display:grid;gap:14px" id="sp"></div>
+    <p class="lead">${esc(m.source||"")}</p>
+  </section>
+  ${m.videos&&m.videos.length?`<section><h2>Vidéos</h2><div class="links">${m.videos.map(([t,u])=>`<a class="lnk" href="${u}" target="_blank" rel="noopener"><b>${esc(t)}</b><small>YouTube</small></a>`).join("")}</div></section>`:""}`;
+  app.querySelectorAll("[data-f]").forEach(b=>b.addEventListener("click",()=>play(+b.dataset.f)));
+  const sp=document.getElementById("sp");
+  m.blocs.forEach((b,bi)=>{
+    const d=document.createElement("div");d.className="blk";
+    d.innerHTML=`<div class="blk-h"><b>${esc(b.t)}</b><span class="lead">${esc(b.m||"")}</span>${b.x?`<span class="times">× ${b.x}</span>`:""}<button class="play2" type="button" data-b="${bi}" aria-label="Écouter ce passage">▶</button></div><div class="bars"></div>`;
+    const bars=d.querySelector(".bars");
+    b.mesures.forEach((bar,ri)=>{const be=document.createElement("div");be.className="bar";
+      bar.forEach(([c,dur,tie],ni)=>{const n=corde(c,over),e=document.createElement("div");
+        e.className=`chip ${n.c}${tie?" tie":""}`;e.style.width=(dur*30+(dur-1)*3)+"px";e.id=`c${bi}-${ri}-${ni}`;
+        e.innerHTML=c==="R"?"·":`${n.n}<small>${c}${tie?" tenu":""}</small>`;be.appendChild(e)});
+      bars.appendChild(be)});
+    sp.appendChild(d);
+  });
+  let timers=[];
+  const clear=()=>document.querySelectorAll(".chip.now").forEach(c=>c.classList.remove("now"));
+  stopPlayer=()=>{timers.forEach(clearTimeout);timers=[];clear()};
+  function seq(list,all){
+    stopPlayer();const u=m.vitesse*+document.getElementById("spTempo").value;let t=0;
+    list.forEach(bi=>{const b=m.blocs[bi],reps=all?(b.x||1):Math.min(b.x||1,2);
+      for(let k=0;k<reps;k++)b.mesures.forEach((bar,ri)=>bar.forEach(([c,dur],ni)=>{const at=t,f=corde(c,over).f;
+        timers.push(setTimeout(()=>{clear();const e=document.getElementById(`c${bi}-${ri}-${ni}`);if(e)e.classList.add("now");play(f)},at*1000));t+=dur*u}))});
+    timers.push(setTimeout(stopPlayer,t*1000+300));
+  }
+  sp.addEventListener("click",e=>{const b=e.target.closest(".play2");if(b)seq([+b.dataset.b])});
+  document.getElementById("spAll").addEventListener("click",()=>seq(m.blocs.map((_,i)=>i),true));
+  document.getElementById("spStop").addEventListener("click",stopPlayer);
+}
+
+function viewIdees(){
+  const yt=q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q);
+  app.innerHTML=`<header style="display:grid;gap:6px"><h1>Idées de morceaux</h1>
+    <p class="lead">Des pistes pour la suite, dans l'esprit de Sina Bathaie. Envoie-moi celle qui te plaît, avec une capture de partition si tu en trouves une : je l'ajoute dans tes morceaux.</p></header>
+  <section><h2>Encore de Sina Bathaie</h2><div class="links">
+    <a class="lnk" href="${yt("Sina Bathaie Breath of Life live santur")}" target="_blank" rel="noopener"><b>Breath of Life</b><small>Son morceau le plus écouté</small></a>
+    <a class="lnk" href="${yt("Sina Bathaie Tehran santur")}" target="_blank" rel="noopener"><b>Tehran</b><small>Avec Saba Zameni</small></a>
+    <a class="lnk" href="${yt("Sina Bathaie Timeless live")}" target="_blank" rel="noopener"><b>Timeless</b><small>Souvent joué avec Seven Ponds en concert</small></a>
+  </div></section>
+  <section><h2>Partitions de débutant</h2><div class="links">
+    <a class="lnk" href="https://www.notdoni.com/" target="_blank" rel="noopener"><b>notdoni.com</b><small>Là où tu as trouvé Seven Ponds : fais une capture de l'aperçu</small></a>
+    <a class="lnk" href="${yt("easy santur song for beginners tutorial")}" target="_blank" rel="noopener"><b>Morceaux faciles au santour</b><small>Tutoriels pour débutants</small></a>
+  </div></section>
+  <div class="warn"><b>Comment ça marche</b><span>Quand tu me donnes un morceau, je le traduis en cases de couleur, je te dis s'il faut changer une corde, et il apparaît dans « Morceaux » sur ton téléphone.</span></div>`;
+}
+
+/* ---------- routeur ---------- */
+function route(){
+  stopPlayer();stopPlayer=()=>{};
+  const h=(location.hash||"#accordage").slice(1);
+  const v=h.startsWith("m-")?"morceaux":h;
+  document.querySelectorAll("nav.tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===v));
+  if(h.startsWith("m-"))viewMorceau(h.slice(2));
+  else if(h==="morceaux")viewMorceaux();
+  else if(h==="idees")viewIdees();
+  else viewAccordage();
+  window.scrollTo(0,0);
+}
+addEventListener("hashchange",route);route();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
