@@ -99,6 +99,32 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--nav);display:fl
 nav.tabs a{flex:1;max-width:180px;display:grid;justify-items:center;gap:2px;color:var(--navfg);opacity:.6;text-decoration:none;font-size:.78rem;font-weight:800;padding:4px 0;border-radius:10px}
 nav.tabs a svg{width:26px;height:26px}
 nav.tabs a.on{opacity:1;background:rgba(255,255,255,.08)}
+/* accordeur au micro */
+.readout{align-self:start}
+.readout.live{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.rbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.readout.live{padding:10px 12px;gap:4px 12px}
+.readout.live .big{font-size:2.2rem}
+.readout.live #rInfo{display:none}
+.readout.live .rbtns .btn{padding:5px 12px;font-size:.9rem}
+.readout.live .tmsg{font-size:1.6rem}
+.readout.live .tuner{gap:5px;padding-top:6px}
+.readout.live .thelp{font-size:.88rem;line-height:1.35}
+.btn.mic{border-color:var(--brass);background:var(--brass);color:#1d2523}
+.btn.mic.on{background:transparent;color:var(--ink)}
+.tuner{grid-column:1/-1;display:grid;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+.tuner[hidden]{display:none}
+.tmsg{font-family:var(--display);font-size:2rem;line-height:1.1;color:var(--mute)}
+.tmsg.ok{color:#2f8a57} .tmsg.up,.tmsg.down{color:var(--brass)} .tmsg.oct{color:#c0392b}
+.gauge{position:relative;height:34px;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.gauge .ok{position:absolute;left:45%;width:10%;top:0;bottom:0;background:rgba(47,138,87,.28)}
+.gauge .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:#2f8a57}
+.gauge .lab{position:absolute;top:50%;transform:translateY(-50%);font-size:.72rem;font-weight:800;color:var(--mute)}
+.gauge .needle{position:absolute;top:3px;bottom:3px;width:12px;margin-left:-6px;border-radius:6px;background:var(--ink);left:50%;transition:left .12s linear,opacity .3s}
+.gauge.idle .needle{opacity:.2}
+.tnum{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums;font-size:.9rem;color:var(--mute)}
+.tnum b{color:var(--ink);font-size:1.1rem}
+.thelp{font-size:.95rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -151,7 +177,7 @@ let stopPlayer=()=>{};
 function viewAccordage(){
   app.innerHTML=`
   <header style="display:grid;gap:6px"><h1>Accordage</h1>
-    <p class="lead">Touche une corde sur le dessin ou dans le tableau : tu vois la note à viser sur ton accordeur et tu l'entends.</p></header>
+    <p class="lead">Touche une corde sur le dessin ou dans le tableau : tu vois la note à viser et tu l'entends. Touche « Accorder au micro » : l'appli écoute ta corde et te dit s'il faut monter ou descendre.</p></header>
   <section>
     <div class="legend">
       <span><i class="sw G"></i><b>Zone gauche</b> : blanches, aigu</span>
@@ -160,15 +186,22 @@ function viewAccordage(){
       <span><b>Zone droite</b> (gooshi, chevilles) : on ne frappe pas</span>
     </div>
     <div class="panel diag"><svg id="sant" viewBox="0 0 900 580" style="width:100%;min-width:620px;height:auto" role="img" aria-label="Schéma du santour vu du dessus"></svg></div>
-    <div class="panel readout" aria-live="polite">
+  </section>
+    <div class="panel readout" aria-live="polite" style="margin-top:-18px">
       <div class="big" id="rNote">Mi</div>
       <div style="display:grid;gap:2px">
         <b id="rName">Choisis une corde</b>
         <span id="rInfo" class="lead">Sur l'accordeur : E3 · 164,8 Hz</span>
-        <div><button class="btn" id="rPlay" type="button" style="margin-top:6px">Écouter la note</button></div>
+        <div class="rbtns"><button class="btn mic" id="rMic" type="button" aria-pressed="false">🎤 Accorder au micro</button><button class="btn" id="rPlay" type="button">Écouter la note</button></div>
+      </div>
+      <div class="tuner" id="tuner" hidden>
+        <div class="tmsg" id="tMsg">Frappe la corde</div>
+        <div class="gauge idle" id="tGauge" aria-hidden="true"><div class="ok"></div><div class="mid"></div>
+          <span class="lab" style="left:8px">trop bas</span><span class="lab" style="right:8px">trop haut</span><div class="needle" id="tNeedle"></div></div>
+        <div class="tnum"><span>Écart : <b id="tCents">—</b></span><span id="tHz">Cible : 164,8 Hz</span></div>
+        <p class="thelp lead" id="tHelp">Frappe la corde choisie et laisse-la sonner. Pose le téléphone près des cordes.</p>
       </div>
     </div>
-  </section>
   <section>
     <h2>Le tableau complet</h2>
     <p class="lead">Dans l'ordre de ton santour : rangée 9 en haut (la plus loin de toi), rangée 1 en bas.</p>
@@ -181,7 +214,7 @@ function viewAccordage(){
     <div class="steps">
       <div class="step"><span class="num">1</span>
         <svg viewBox="0 0 200 110"><rect x="10" y="10" width="180" height="90" rx="10" fill="var(--bg)" stroke="var(--line)"/><path d="M40 80 A60 60 0 0 1 160 80" fill="none" stroke="var(--line)" stroke-width="8"/><path d="M95 80 A60 60 0 0 1 105 21" fill="none" stroke="#2f8a57" stroke-width="8"/><line x1="100" y1="80" x2="100" y2="28" stroke="#2f8a57" stroke-width="4"/><text x="100" y="98" text-anchor="middle" font-size="16" font-weight="800" fill="var(--ink)">E3 ✓</text></svg>
-        <h3>Une seule corde par groupe</h3><p>Pose le téléphone sur le santour. Frappe la 1ʳᵉ corde d'un groupe de 4 et tourne la <b>kelid</b> (clé) jusqu'au vert.</p></div>
+        <h3>Une seule corde par groupe</h3><p>Touche « Accorder au micro » et pose le téléphone sur le santour. Frappe la 1ʳᵉ corde d'un groupe de 4 et tourne la <b>kelid</b> (clé) jusqu'à « Juste ».</p></div>
       <div class="step"><span class="num">2</span>
         <svg viewBox="0 0 200 110"><g stroke-width="5" stroke-linecap="round"><line x1="20" y1="30" x2="180" y2="30" stroke="#2f8a57"/><line x1="20" y1="48" x2="180" y2="48" stroke="var(--brass)"/><line x1="20" y1="66" x2="180" y2="66" stroke="var(--brass)"/><line x1="20" y1="84" x2="180" y2="84" stroke="var(--brass)"/></g><text x="100" y="20" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">1 juste → copie les 3 autres</text></svg>
         <h3>Les 3 autres à l'oreille</h3><p>Frappe la corde juste puis la suivante. Si le son ondule, tourne jusqu'à ce qu'il devienne lisse.</p></div>
@@ -192,8 +225,9 @@ function viewAccordage(){
         <svg viewBox="0 0 200 110"><path d="M100 20 A35 35 0 1 1 65 55" fill="none" stroke="var(--brass)" stroke-width="6"/><path d="M58 44 L65 58 L76 46" fill="none" stroke="var(--brass)" stroke-width="6" stroke-linecap="round"/><text x="100" y="62" text-anchor="middle" font-size="18" font-weight="800" fill="var(--ink)">×2</text></svg>
         <h3>On refait un tour</h3><p>Quand tu tends des cordes, le bois bouge un peu. Repasse sur tout le santour une 2ᵉ fois, c'est normal.</p></div>
     </div>
-    <div class="warn"><b>Sécurité</b><span>Tourne la kelid (clé) par tout petits coups. Descends un peu sous la note puis remonte vers elle. Si l'accordeur affiche la bonne lettre mais une octave au-dessus (ex. E4 au lieu de E3), ne force pas : la corde pourrait casser.</span></div>
-    <div class="warn"><b>Pas de son ?</b><span>Sur iPhone, vérifie que le bouton silencieux sur le côté n'est pas activé.</span></div>
+    <div class="warn"><b>Sécurité</b><span>Tourne la kelid (clé) par tout petits coups. Descends un peu sous la note puis remonte vers elle. Si l'appli affiche « Une octave trop haut » (ou un autre accordeur affiche E4 au lieu de E3), ne force pas : la corde pourrait casser.</span></div>
+    <div class="warn"><b>Pas de son ?</b><span>Sur iPhone, vérifie que le bouton silencieux sur le côté n'est pas activé. Quand le micro écoute, l'iPhone joue la note de référence moins fort : c'est normal.</span></div>
+    <div class="warn"><b>Le micro ne marche pas ?</b><span>La première fois, l'iPhone demande la permission : touche « Autoriser ». Si tu as refusé, touche « aA » dans la barre d'adresse de Safari, puis « Réglages du site » › Micro › Autoriser. Pour l'appli posée sur l'écran d'accueil : Réglages › Safari › Micro.</span></div>
   </section>
   <section>
     <h2>Vidéos</h2>
@@ -221,9 +255,124 @@ function viewAccordage(){
     document.getElementById("rNote").textContent=d.n;
     document.getElementById("rName").textContent=`Rangée ${d.r+1} · ${ZONE[d.c]}`;
     document.getElementById("rInfo").textContent=`Sur l'accordeur : ${d.l} · ${fmt(d.f)} Hz`;
-    play(d.f);
+    if(tuner.on)tuner.target(d);else play(d.f); // micro ouvert : on ne joue pas la note, sinon l'appli s'entendrait elle-même
   }
   document.getElementById("rPlay").addEventListener("click",()=>play(corde(cur).f));
+  const tuner=makeTuner(()=>corde(cur));
+  document.getElementById("rMic").addEventListener("click",()=>tuner.on?tuner.stop():tuner.start());
+  stopPlayer=()=>tuner.stop();
+}
+
+/* ---------- accordeur au micro ----------
+   On connaît la note visée : on cherche la période de la corde autour de cette note (±5 demi-tons)
+   avec une autocorrélation normalisée (NSDF, méthode McLeod). Chercher seulement près de la note visée
+   évite que les harmoniques métalliques du santour (octave, quinte…) soient prises pour la note.
+   On vérifie ensuite l'octave au-dessus / au-dessous pour prévenir si la corde est une octave trop haut ou trop bas. */
+function nsdfAt(x,W,tau){let r=0,m=0;for(let i=0;i<W;i++){const a=x[i],b=x[i+tau];r+=a*b;m+=a*a+b*b}return m>0?2*r/m:0}
+function bestPeak(x,W,lo,hi){
+  // plus haut sommet local de la NSDF entre les décalages lo et hi, affiné par une parabole
+  lo=Math.max(2,Math.floor(lo));hi=Math.ceil(hi);const v=[];for(let t=lo-1;t<=hi+1;t++)v.push(nsdfAt(x,W,t));
+  let best=null;
+  for(let k=1;k<v.length-1;k++){const t=lo-1+k;
+    if(v[k]>v[k-1]&&v[k]>=v[k+1]&&t>=lo&&t<=hi&&(!best||v[k]>best.v)){
+      const a=v[k-1],b=v[k],c=v[k+1],den=a-2*b+c,sh=den?0.5*(a-c)/den:0;
+      best={tau:t+sh,v:b-0.25*(a-c)*sh}}}
+  return best;
+}
+function dtftMag(x,sr,f){
+  // amplitude du spectre (fenêtre de Hann) à la fréquence f
+  const N=x.length,w=2*Math.PI*f/sr,cw=Math.cos(w),sw=Math.sin(w),ch=Math.cos(2*Math.PI/N),sh=Math.sin(2*Math.PI/N);
+  let c=1,s=0,hc=1,hs=0,re=0,im=0;
+  for(let i=0;i<N;i++){const v=x[i]*(0.5-0.5*hc);re+=v*c;im-=v*s;
+    const c2=c*cw-s*sw;s=s*cw+c*sw;c=c2;const h2=hc*ch-hs*sh;hs=hs*ch+hc*sh;hc=h2}
+  return re*re+im*im;
+}
+function refine(x,sr,f){
+  // la période donne une estimation ; on affine en cherchant le sommet du spectre autour de la fondamentale.
+  // Les cordes métalliques ont des harmoniques un peu trop hautes : sans ça, la note paraîtrait un peu trop haute.
+  let a=f*Math.pow(2,-60/1200),b=f*Math.pow(2,60/1200);const g=0.381966;
+  const fa=dtftMag(x,sr,a),fb=dtftMag(x,sr,b);
+  let c=a+g*(b-a),d=b-g*(b-a),fc=dtftMag(x,sr,c),fd=dtftMag(x,sr,d);
+  for(let k=0;k<16;k++){if(fc>fd){b=d;d=c;fd=fc;c=a+g*(b-a);fc=dtftMag(x,sr,c)}else{a=c;c=d;fc=fd;d=b-g*(b-a);fd=dtftMag(x,sr,d)}}
+  const m=(a+b)/2,fm=Math.max(fc,fd),dc=Math.abs(1200*Math.log2(m/f));
+  return fm>1.02*Math.max(fa,fb)&&dc<55?m:f;   // vrai sommet à l'intérieur de la fenêtre : sinon on garde la période
+}
+function detectPitch(x,sr,target){
+  // renvoie {f, cents, clarity, oct:-1|0|1} ou null si on n'entend pas assez bien
+  const N=x.length;let e=0;for(let i=0;i<N;i++)e+=x[i]*x[i];
+  if(Math.sqrt(e/N)<0.004)return null;               // silence
+  const L=sr/target,S5=Math.pow(2,5/12),S1=Math.pow(2,1/12);
+  const maxTau=Math.min(2*L*S1+2,N/2),W=Math.floor(Math.min(N-maxTau-2,Math.max(2400,6*L)));
+  if(W<L*2)return null;
+  const p=bestPeak(x,W,L/S5,L*S5);
+  const hiOct=bestPeak(x,W,L/2/S1,L/2*S1);           // la corde sonne-t-elle une octave plus haut ?
+  if(hiOct&&hiOct.v>0.8&&(!p||hiOct.v>0.93*p.v)){const f=refine(x,sr,sr/hiOct.tau);return{f,cents:1200*Math.log2(f/target),clarity:hiOct.v,oct:1}}
+  if(2*L*S1+2<N/2){
+    const loOct=bestPeak(x,W,2*L/S1,2*L*S1);         // ou une octave plus bas ?
+    if(loOct&&loOct.v>0.8&&(!p||p.v<0.5)){const f=refine(x,sr,sr/loOct.tau);return{f,cents:1200*Math.log2(f/target),clarity:loOct.v,oct:-1}}
+  }
+  if(!p||p.v<0.6)return null;
+  const f=refine(x,sr,sr/p.tau);return{f,cents:1200*Math.log2(f/target),clarity:p.v,oct:0};
+}
+function makeTuner(getCorde){
+  const $=id=>document.getElementById(id);
+  let stream=null,src=null,an=null,mute=null,buf=null,raf=0,last=0,hist=[],lastHeard=0,d=getCorde();
+  const T={on:false};
+  function show(cls,msg,help,cents,hz){
+    const m=$("tMsg");if(!m)return;
+    m.className="tmsg "+(cls||"");m.textContent=msg;$("tHelp").textContent=help;
+    $("tCents").textContent=cents==null?"—":(cents>0?"+":cents<0?"−":"")+Math.abs(Math.round(cents))+" cents";
+    $("tHz").textContent=(hz?`Tu joues ${fmt(hz)} Hz · `:"")+`Cible : ${d.l} · ${fmt(d.f)} Hz`;
+    $("tGauge").classList.toggle("idle",cents==null);
+    if(cents!=null)$("tNeedle").style.left=(50+Math.max(-50,Math.min(50,cents)))+"%";
+  }
+  function waiting(){show("","Frappe la corde",`Frappe ${d.n} (rangée ${d.r+1}) et laisse-la sonner. Pose le téléphone près des cordes.`,null,0)}
+  T.target=nd=>{d=nd;hist=[];waiting()};
+  function tick(now){
+    raf=requestAnimationFrame(tick);
+    if(now-last<90)return;last=now;
+    an.getFloatTimeDomainData(buf);
+    const r=detectPitch(buf,ctx.sampleRate,d.f);
+    if(!r){if(now-lastHeard>1800){hist=[];waiting()}return}
+    lastHeard=now;
+    if(r.oct){hist=[];
+      if(r.oct>0)show("oct","Une octave trop haut !","Arrête de tendre : la corde pourrait casser. Détends-la doucement jusqu'à revenir sur la bonne note.",null,r.f);
+      else show("oct","Une octave trop bas","La corde est très détendue. Tends-la doucement, par petits coups, en regardant l'écran.",null,r.f);
+      return}
+    hist.push(r.cents);if(hist.length>5)hist.shift();
+    const c=[...hist].sort((a,b)=>a-b)[hist.length>>1],G=d.c==="G";
+    if(Math.abs(c)<=5)show("ok","Juste ✓",G?"Ce kharak est bien placé.":"Cette corde est juste. Accorde les 3 autres du groupe à l'oreille sur elle.",c,r.f);
+    else if(c<0)show("up",c<-50?"Plus haut ↑↑":"Plus haut ↑",
+      (c<-50?"Encore loin. ":"")+(G?"La note est trop basse : pousse le kharak (chevalet) d'1 mm vers la gauche.":"La corde est trop basse : tends-la en tournant la kelid par tout petits coups."),c,r.f);
+    else show("down",c>50?"Plus bas ↓↓":"Plus bas ↓",
+      (c>50?"Encore loin. ":"")+(G?"La note est trop haute : pousse le kharak (chevalet) d'1 mm vers la droite.":"La corde est trop haute : détends un peu la kelid, puis remonte doucement vers la note."),c,r.f);
+  }
+  T.start=async()=>{
+    const b=$("rMic"),tu=$("tuner");
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){tu.hidden=false;show("oct","Micro indisponible","Ce navigateur ne permet pas d'utiliser le micro ici. Ouvre l'appli dans Safari (adresse en https).",null,0);return}
+    try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();ctx.resume();}catch(e){return}
+    T.on=true;b.classList.add("on");b.setAttribute("aria-pressed","true");b.textContent="⏹ Arrêter le micro";
+    tu.hidden=false;tu.closest(".readout").classList.add("live");d=getCorde();show("","Micro…","Autorise le micro si l'iPhone le demande.",null,0);
+    try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})}
+    catch(e){T.stop(true);tu.hidden=false;
+      show("oct","Micro refusé",e&&e.name==="NotAllowedError"?"L'iPhone a refusé le micro. Dans Safari : « aA » › Réglages du site › Micro › Autoriser, puis réessaie.":"Impossible d'ouvrir le micro. Ferme les autres applis qui l'utilisent et réessaie.",null,0);return}
+    if(!T.on){stream.getTracks().forEach(t=>t.stop());stream=null;return}
+    await ctx.resume();
+    src=ctx.createMediaStreamSource(stream);an=ctx.createAnalyser();an.fftSize=4096;buf=new Float32Array(an.fftSize);
+    mute=ctx.createGain();mute.gain.value=0;src.connect(an);an.connect(mute);mute.connect(ctx.destination); // Safari ne fait tourner l'analyse que si elle mène aux haut-parleurs (ici à volume 0)
+    hist=[];lastHeard=0;waiting();raf=requestAnimationFrame(tick);
+  };
+  T.stop=keep=>{
+    cancelAnimationFrame(raf);
+    if(stream)stream.getTracks().forEach(t=>t.stop());
+    [src,an,mute].forEach(n=>{try{n&&n.disconnect()}catch(e){}});stream=src=an=mute=null;
+    if(!T.on&&keep!==true)return;T.on=false;
+    const b=$("rMic"),tu=$("tuner");if(!b)return;
+    b.classList.remove("on");b.setAttribute("aria-pressed","false");b.textContent="🎤 Accorder au micro";
+    tu.hidden=true;tu.closest(".readout").classList.remove("live");
+  };
+  document.addEventListener("visibilitychange",()=>{if(document.hidden&&T.on)T.stop()});
+  return T;
 }
 
 function drawSantour(svg,onPick){
