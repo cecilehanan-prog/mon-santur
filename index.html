@@ -326,10 +326,12 @@ function viewMorceau(id){
   const clear=()=>document.querySelectorAll(".chip.now").forEach(c=>c.classList.remove("now"));
   stopPlayer=()=>{timers.forEach(clearTimeout);timers=[];clear()};
   function seq(list,all){
-    stopPlayer();const u=m.vitesse*+document.getElementById("spTempo").value;let t=0;
+    stopPlayer();const u=m.vitesse*+document.getElementById("spTempo").value;let t=0,held=null;
     list.forEach(bi=>{const b=m.blocs[bi],reps=all?(b.x||1):Math.min(b.x||1,2);
-      for(let k=0;k<reps;k++)b.mesures.forEach((bar,ri)=>bar.forEach(([c,dur],ni)=>{const at=t,f=corde(c,over).f;
-        timers.push(setTimeout(()=>{clear();const e=document.getElementById(`c${bi}-${ri}-${ni}`);if(e)e.classList.add("now");play(f)},at*1000));t+=dur*u}))});
+      for(let k=0;k<reps;k++)b.mesures.forEach((bar,ri)=>bar.forEach(([c,dur,tie],ni)=>{const at=t,f=corde(c,over).f;
+        // Note tenue : si la note d'avant est liée à celle-ci (même corde), on ne la refrappe pas, elle continue de sonner.
+        const strike=held!==c;held=tie&&c!=="R"?c:null;
+        timers.push(setTimeout(()=>{clear();const e=document.getElementById(`c${bi}-${ri}-${ni}`);if(e)e.classList.add("now");if(strike)play(f)},at*1000));t+=dur*u}))});
     timers.push(setTimeout(stopPlayer,t*1000+300));
   }
   sp.addEventListener("click",e=>{const b=e.target.closest(".play2");if(b)seq([+b.dataset.b])});
